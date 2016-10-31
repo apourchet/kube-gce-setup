@@ -1,15 +1,16 @@
 #! /bin/bash
 set -x
 
+NUM_WORKERS=$(cat config.json | jq -r '.num_workers')
 ADDRESS_NAME=$(cat config.json | jq -r '.address_name')
+INGRESS_ADDRESS_NAME=$(cat config.json | jq -r '.ingress_address_name')
 SUBNET=$(cat config.json | jq -r '.subnet')
 KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe $ADDRESS_NAME --format 'value(address)') 
 
-num_workers=$1
-[ -z "$1" ] && num_workers=1
+[ -z "$NUM_WORKERS" ] && NUM_WORKERS=1
 
 worker_names=""
-for i in $(seq -w $num_workers); do
+for i in $(seq -w $NUM_WORKERS); do
     worker_names=$worker_names"worker"$i" "
 done
 
@@ -38,12 +39,3 @@ for worker_name in $worker_names; do
 
     gcloud compute ssh ubuntu@$worker_name --command="sudo $env bash /home/ubuntu/cloud-init.sh"
 done
-
-# gcloud compute target-pools create kubernetes-frontend-pool
-
-# gcloud compute target-pools add-instances kubernetes-frontend-pool --instances ${worker_names// /,}
-
-# gcloud compute forwarding-rules create kubernetes-frontend-rule \
-#     --address ${KUBERNETES_PUBLIC_ADDRESS} \
-#     --target-pool kubernetes-frontend-pool \
-#     --ports 30001,30002

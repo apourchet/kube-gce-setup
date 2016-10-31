@@ -21,6 +21,6 @@ bash ./auth/gentoken.sh ./auth/token.csv
 bash network/setup.sh
 cd ca && bash gencert.sh && cd -
 bash ./controller/setup.sh
-bash ./worker/setup.sh 2
+bash ./worker/setup.sh
 bash ./kubectl/config.sh
 bash ./subnets/setup.sh
